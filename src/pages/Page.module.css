@@ -1,0 +1,24 @@
+.main {
+    display: grid;
+    align-content: flex-start;
+    padding: 3vw;
+    min-height: 100vh;
+    background: rgb(238,174,202);
+    background: radial-gradient(circle, rgba(238,174,202,0.5578606442577031) 0%, rgba(148,187,233,0.6278886554621849) 100%);
+}
+@media screen and (max-width: 350px) {
+    .main {
+        padding: 0;
+    }
+}
+
+.form {
+    display: grid;
+    align-content: flex-start;
+    grid-gap: 1.5rem;
+    justify-content: center;
+    background-color: white;
+    border-radius: 3rem;
+    padding: 0 auto;
+    box-shadow: 5px 15px 25px rgb(0 0 0 / 50%);
+}

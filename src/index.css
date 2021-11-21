@@ -1,13 +1,42 @@
-body {
+*,
+*::before,
+*::after {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: Tahoma, Geneva, Verdana, sans-serif;
+  direction: rtl;
+  line-height: 2;
+  font-size: medium;
+}
+input,select,textarea{
+  height: 3rem;
+  font: inherit;
+  padding: 5px;
+}
+button{
+  min-height: 2rem;
+  outline: none;
+  border: none;
+  font: inherit;
+  border-radius: 5px;
+  font-weight: 500;
+  width: 15rem;
+  padding: 5px;
+  transition: all .2s ease-in-out;
+  cursor: pointer;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+button:disabled {
+	background-color: #999;
+	cursor: not-allowed;
+}
+
+button:hover:not(:disabled):not([data-disabled="true"]) {
+	transform: translateY(-3px);
+}
+button:not(:disabled):not([data-disabled="true"]):active {
+	transform: translateY(0.5px);
 }
