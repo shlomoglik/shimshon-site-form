@@ -1,15 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
-import { db } from '../App';
-import { collection, onSnapshot } from "firebase/firestore";
+import { useContext, useEffect, useRef, useState } from 'react';
+import {fbContext} from  "../state/fbContext"
+import { SITES, ROLES, USERS } from "../state/collections"
 import styles from './Page.module.css';
 import Dropdown from '../components/Dropdown';
 import DateInput from '../components/DateInput';
 import Group from '../components/Group';
 import Heading from '../components/Heading';
 
-const SITES = "sites"
-const ROLES = "roles"
-const USERS = "users"
 const timeTrackHeaders = { userName: { label: "שם", type: "list", options: USERS }, role: { label: "תפקיד", type: "list", options: ROLES }, from: { label: "משעה", type: "hour" }, to: { label: "עד שעה", type: "hour" } }
 const pitHeaders = { pit: { label: "מספר בור", type: "text" }, deep: { label: "עומק", type: "number" } }
 const groupDefaultItems = {
@@ -23,14 +20,11 @@ const initialData = {
   operators: [{ ...groupDefaultItems.operators, id: Math.floor(Math.random() * 100) }],
   pits: [{ ...groupDefaultItems.pits, id: Math.floor(Math.random() * 100) }],
 }
-const initialState = {
-  [SITES]: [],
-  [ROLES]: [],
-  [USERS]: []
-}
 
 export default function SiteReport() {
-  const [state, updateState] = useState(initialState)
+
+  const state = useContext(fbContext)
+
   const [changes, setChanges] = useState({})
   const [valid, setValid] = useState(false)
   const [errors, setErrors] = useState([])
@@ -39,54 +33,6 @@ export default function SiteReport() {
 
   const formRef = useRef(null)
   //fetch state from firebase
-  useEffect(() => {
-    setDocData(initialData)
-    const listenTo = {
-      [USERS]: false,
-      [SITES]: false,
-      [ROLES]: false,
-    }
-    //fetch as listener~
-    Object.keys(listenTo).forEach(path => {
-      const colRef = collection(db, path)
-      listenTo[path] = onSnapshot(colRef, snap => {
-        snap.docChanges().forEach(({ doc, type }) => {
-          if (type === "added") {
-            updateState(prev => {
-              return {
-                ...prev,
-                [path]: [...prev[path], { id: doc.id, ...doc.data() }]
-              }
-            })
-          } else if (type === "modified") {
-            updateState(prev => {
-              return {
-                ...prev,
-                [path]: prev[path].map(_doc => {
-                  if (_doc.id === doc.id) return { id: doc.id, ...doc.data() }
-                  return _doc
-                })
-              }
-            })
-          } else if (type === "removed") {
-            updateState(prev => {
-              return {
-                ...prev,
-                [path]: prev[path].filter(_doc => _doc.id !== doc.id)
-              }
-            })
-          }
-        })
-      })
-    })
-    return () => {
-      updateState(...initialState)
-      Object.values(listenTo).forEach(unsubscribe => {
-        unsubscribe()
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     let valid = true
@@ -142,6 +88,7 @@ export default function SiteReport() {
     })
     setDocData({ ...docData, [group]: updatedGroup })
   }
+
   function removeItemFromGroup(group, id) {
     const updatedGroup = docData[group].filter(item => item.id !== id)
     setDocData({ ...docData, [group]: updatedGroup })
@@ -166,7 +113,7 @@ export default function SiteReport() {
         body: JSON.stringify(docData)
       })
       console.log(res);
-      // const json = await res.json()
+      // const json = await res.json() 
       // console.log(json)
       resetForm();
     } catch (error) {

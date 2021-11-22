@@ -3,6 +3,7 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { getFirestore } from "firebase/firestore";
 import SiteReport from "./pages/SiteReport"
 import Settings from './pages/Settings';
+import FbProvider from './state/fbContext';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_APIKEY,
@@ -19,12 +20,14 @@ export const db = getFirestore(app);
 function App() {
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<SiteReport />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
-    </Router>
+    <FbProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<SiteReport />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </Router>
+    </FbProvider>
   )
 }
 
