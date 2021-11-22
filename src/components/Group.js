@@ -6,7 +6,7 @@ import NumberInput from "./NumberInput"
 import Dropdown from "./Dropdown"
 
 export default function Group({
-    title = "GROUP NO TITLE",
+    title = "",
     addItem = () => { },
     editItem = () => { },
     saveItem = () => { },
@@ -42,7 +42,7 @@ export default function Group({
                     {(allowSave && hasChanges) && <button style={{ backgroundColor: 'navy', color: 'white' }} onClick={() => saveItem(item.id)}>שמור</button>}
                 </div>
             ))}
-            <button onClick={addItem}>+ הוסף {title}</button>
+            <button onClick={addItem}>+ הוסף {title || "חדש"}</button>
         </div>
     )
 }
