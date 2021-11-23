@@ -10,7 +10,7 @@ export default function Dropdown({ title, value, onSelect = () => { }, options =
         <div className={styles.wrraper}>
             <label>{title}</label>
             <select onChange={onChange} value={value}>
-                <option >--בחר--</option>
+                <option value="">--בחר--</option>
                 {state[options]?.map(({ id, title }) => (
                     <option value={id} key={id}>{title}</option>
                 ))}

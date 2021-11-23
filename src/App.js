@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { getFirestore } from "firebase/firestore";
 import SiteReport from "./pages/SiteReport"
+import ThanksPage from "./pages/ThanksPage"
 import Settings from './pages/Settings';
 import FbProvider from './state/fbContext';
 
@@ -25,6 +26,7 @@ function App() {
         <Routes>
           <Route path="/" element={<SiteReport />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/thanks" element={<ThanksPage />} />
         </Routes>
       </Router>
     </FbProvider>

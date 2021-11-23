@@ -52,7 +52,7 @@ export default function FbProvider({ children }) {
             })
           })
         })
-        console.log(state)
+        // console.log(state)
         return () => {
           updateState(...initialState)
           Object.values(listenTo).forEach(unsubscribe => {
