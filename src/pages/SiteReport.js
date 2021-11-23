@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import {fbContext} from  "../state/fbContext"
+import { fbContext } from "../state/fbContext"
 import { SITES, ROLES, USERS } from "../state/collections"
 import styles from './Page.module.css';
 import Dropdown from '../components/Dropdown';
@@ -11,7 +11,7 @@ const timeTrackHeaders = { userName: { label: "שם", type: "list", options: USE
 const pitHeaders = { pit: { label: "מספר בור", type: "text" }, deep: { label: "עומק", type: "number" } }
 const groupDefaultItems = {
   operators: { userName: "", role: "operator", from: "", to: "" },
-  pits: { pit: "", deep: 0 },
+  pits: { pit: "1", deep: 0 },
 }
 const initialData = {
   user: "",
@@ -25,43 +25,24 @@ export default function SiteReport() {
 
   const state = useContext(fbContext)
 
-  const [changes, setChanges] = useState({})
   const [valid, setValid] = useState(false)
-  const [errors, setErrors] = useState([])
-  const [showErrors, setShowErrors] = useState(false)
   const [docData, setDocData] = useState(initialData)
 
   const formRef = useRef(null)
   //fetch state from firebase
 
   useEffect(() => {
+
+    //validation
     let valid = true
-    if (!docData.site) {
-      if ("site" in changes) {
-        setErrors(prev => ([...prev, "יש למלא שם אתר"]))
-      }
-      valid = false
-    }
-    if (!docData.date) {
-      if ("date" in changes) {
-        setErrors(prev => ([...prev, "יש למלא תאריך עבודה"]))
-      }
-      valid = false
-    }
-    if (!docData.user) {
-      if ("user" in changes) {
-        setErrors(prev => ([...prev, "יש למלא את שם ממלא הדוח"]))
-      }
-      valid = false
-    }
+    if (!docData.site) valid = false
+    if (!docData.date) valid = false
+    if (!docData.user) valid = false
+    if (!docData.operators[0] || !docData.operators[0].userName || !docData.operators[0].from || !docData.operators[0].to) valid = false
+    if (!docData.pits[0] || !docData.pits[0].pit || !docData.pits[0].deep) valid = false
     setValid(valid)
-  }, [docData, changes])
 
-
-
-  function toggleShowErrors() {
-    setShowErrors(!showErrors)
-  }
+  }, [docData])
 
   function updateSite(id) {
     updateField("site", id)
@@ -74,7 +55,6 @@ export default function SiteReport() {
   }
 
   function updateField(key, value) {
-    setChanges({ ...changes, [key]: value })
     setDocData({ ...docData, [key]: value })
   }
 
@@ -94,12 +74,15 @@ export default function SiteReport() {
     setDocData({ ...docData, [group]: updatedGroup })
   }
   function addItemToGroup(group) {
-    const updatedGroup = docData[group] = [...docData[group], { ...groupDefaultItems[group], id: Math.floor(Math.random() * 100) }]
+    const newGroup = { ...groupDefaultItems[group], id: Math.floor(Math.random() * 100000) }
+    if (group === "pits") {
+      newGroup.pit = docData[group].reduce((acc, prev) => Math.max(acc, parseInt(prev.pit || "1".match(/\d+/)[0]) + 1), 1)
+    }
+    const updatedGroup = [...docData[group], newGroup]
     setDocData({ ...docData, [group]: updatedGroup })
   }
 
   function resetForm() {
-    setChanges({})
     setDocData({ ...initialData })
     formRef.current.reset();
   }
@@ -124,7 +107,7 @@ export default function SiteReport() {
 
   return (
     <main className={styles.main}>
-      <Heading title="דוח קידוחי אתר יומי - שמשון קידוחים" />
+      <Heading title="דוח קידוחי אתר יומי - שמשון קידוחים" datetime />
       <form ref={formRef} onSubmit={e => e.preventDefault()} className={styles.form}>
         <Dropdown state={state} title="שם ממלא דוח" value={docData.user} onSelect={updateUser} options={USERS} />
         <DateInput title="תאריך עבודה" value={docData.date} onInput={updateDate} />
@@ -148,8 +131,6 @@ export default function SiteReport() {
           removeItem={(id) => removeItemFromGroup("pits", id)}
         />
       </form>
-      {!valid && <button style={{ display: 'none' }} onClick={toggleShowErrors}>הצג שגיאות</button>}
-      {(showErrors && errors.length > 0) && errors.map(msg => (<span>{msg}</span>))}
       <div style={{ padding: '2rem 0', marginTop: '2rem', display: 'grid', alignItems: 'center', justifyContent: 'center' }}>
         <button
           style={{ backgroundColor: valid ? "navy" : "gray", color: 'white' }}

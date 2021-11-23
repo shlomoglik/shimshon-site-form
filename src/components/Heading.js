@@ -11,12 +11,12 @@ const style = {
 }
 
 
-export default function Heading({title}) {
+export default function Heading({ title, datetime }) {
     const [timestamp] = useState(formatDateDisplay())
     return (
         <div style={style}>
             <h2>{title}</h2>
-            <div>{timestamp}</div>
+            {datetime && <div>{timestamp}</div>}
         </div>
     )
 }
