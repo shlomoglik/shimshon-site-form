@@ -1,12 +1,13 @@
 import { createContext, useEffect, useState } from "react"
 import { db } from '../App';
 import { collection, onSnapshot } from "firebase/firestore";
-import { USERS , SITES , ROLES} from "./collections"
+import { USERS , SITES , ROLES, EQUIPMENT} from "./collections"
 
 const initialState = {
     users: [],
     roles: [],
     sites: [],
+    equipment: [],
 }
 export const fbContext = createContext(initialState)
 
@@ -18,6 +19,7 @@ export default function FbProvider({ children }) {
           [USERS]: false,
           [SITES]: false,
           [ROLES]: false,
+          [EQUIPMENT]: false,
         }
         //fetch as listener~
         Object.keys(listenTo).forEach(path => {

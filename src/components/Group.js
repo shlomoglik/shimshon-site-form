@@ -29,12 +29,14 @@ export default function Group({
                             <TextInput value={item[header]} title={label} key={`${item.id}_${header}`} onInput={(val) => editItem(item.id, header, val)} /> :
                             type === "list" ?
                                 <Dropdown value={item[header]} title={label} key={`${item.id}_${header}`} state={state} options={options} onSelect={(val) => editItem(item.id, header, val)} /> :
-                                type === "hour" ?
-                                    <HourInput value={item[header]} title={label} key={`${item.id}_${header}`} onInput={(val) => editItem(item.id, header, val)} /> :
-                                    type === "number" ?
-                                        <NumberInput value={item[header]} title={label} key={`${item.id}_${header}`} onInput={(val) => editItem(item.id, header, val)} /> :
-                                        type === "date" ?
-                                            <DateInput value={item[header]} title={label} key={`${item.id}_${header}`} onInput={(val) => editItem(item.id, header, val)} /> : ""
+                                type === "options" ?
+                                    <Dropdown value={item[header]} title={label} key={`${item.id}_${header}`} list={options} onSelect={(val) => editItem(item.id, header, val)} /> :
+                                    type === "hour" ?
+                                        <HourInput value={item[header]} title={label} key={`${item.id}_${header}`} onInput={(val) => editItem(item.id, header, val)} /> :
+                                        type === "number" ?
+                                            <NumberInput value={item[header]} title={label} key={`${item.id}_${header}`} onInput={(val) => editItem(item.id, header, val)} /> :
+                                            type === "date" ?
+                                                <DateInput value={item[header]} title={label} key={`${item.id}_${header}`} onInput={(val) => editItem(item.id, header, val)} /> : ""
 
                     })
                     }

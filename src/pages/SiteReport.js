@@ -1,24 +1,47 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { fbContext } from "../state/fbContext"
-import { SITES, ROLES, USERS } from "../state/collections"
+import { SITES, ROLES, USERS, EQUIPMENT } from "../state/collections"
 import styles from './Page.module.css';
 import Dropdown from '../components/Dropdown';
 import DateInput from '../components/DateInput';
 import Group from '../components/Group';
 import Heading from '../components/Heading';
+import { uuid } from "../utils/uuid"
 
-const timeTrackHeaders = { userName: { label: "שם", type: "list", options: USERS }, role: { label: "תפקיד", type: "list", options: ROLES }, from: { label: "משעה", type: "hour" }, to: { label: "עד שעה", type: "hour" } }
-const pitHeaders = { pit: { label: "מספר בור", type: "text" }, deep: { label: "עומק", type: "number" } }
+const timeTrackHeaders = {
+  userName: { label: "שם", type: "list", options: USERS },
+  role: { label: "תפקיד", type: "list", options: ROLES },
+  from: { label: "משעה", type: "hour" }, to: { label: "עד שעה", type: "hour" }
+}
+const hoursDelayHeaders = {
+  from: { label: "משעה", type: "hour" },
+  to: { label: "עד שעה", type: "hour" },
+  description: { label: "תיאור והערות", type: "text" }
+}
+const pitHeaders = {
+  pit: { label: "מספר בור", type: "text" },
+  deep: { label: "עומק", type: "number" },
+  diameter: { label: "קוטר", type: "options", options: [35, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230] }
+}
+const equipmentHeaders = {
+  title: { label: "כלי", type: "list", options: EQUIPMENT }
+}
+
 const groupDefaultItems = {
   operators: { userName: "", role: "operator", from: "", to: "" },
-  pits: { pit: "1", deep: 0 },
+  pits: { pit: "1", deep: 0, diameter: "" },
+  hoursDelay: { from: "", to: "" },
+  equipment: { title: "" },
 }
+
 const initialData = {
   user: "",
   site: "",
   date: "",
-  operators: [{ ...groupDefaultItems.operators, id: Math.floor(Math.random() * 100) }],
-  pits: [{ ...groupDefaultItems.pits, id: Math.floor(Math.random() * 100) }],
+  operators: [{ ...groupDefaultItems.operators, id: uuid() }],
+  equipment: [{ ...groupDefaultItems.equipment, id: uuid() }],
+  hoursDelay: [{ ...groupDefaultItems.hoursDelay, id: uuid() }],
+  pits: [{ ...groupDefaultItems.pits, id: uuid() }],
 }
 
 export default function SiteReport() {
@@ -74,7 +97,7 @@ export default function SiteReport() {
     setDocData({ ...docData, [group]: updatedGroup })
   }
   function addItemToGroup(group) {
-    const newGroup = { ...groupDefaultItems[group], id: Math.floor(Math.random() * 100000) }
+    const newGroup = { ...groupDefaultItems[group], id: uuid() }
     if (group === "pits") {
       newGroup.pit = docData[group].reduce((acc, prev) => Math.max(acc, parseInt(prev.pit || "1".match(/\d+/)[0]) + 1), 1)
     }
@@ -112,6 +135,23 @@ export default function SiteReport() {
         <Dropdown state={state} title="שם ממלא דוח" value={docData.user} onSelect={updateUser} options={USERS} />
         <DateInput title="תאריך עבודה" value={docData.date} onInput={updateDate} />
         <Dropdown state={state} title="אתר" value={docData.site} onSelect={updateSite} options={SITES} />
+        <Group
+          state={state}
+          items={docData.equipment}
+          title="ציוד באתר"
+          headers={equipmentHeaders}
+          addItem={() => addItemToGroup(EQUIPMENT)}
+          editItem={(id, key, val) => updateGroup(EQUIPMENT, id, key, val)}
+          removeItem={(id) => removeItemFromGroup(EQUIPMENT, id)}
+        />
+        <Group
+          items={docData.hoursDelay}
+          title="עיכוב עבודה"
+          headers={hoursDelayHeaders}
+          addItem={() => addItemToGroup("hoursDelay")}
+          editItem={(id, key, val) => updateGroup("hoursDelay", id, key, val)}
+          removeItem={(id) => removeItemFromGroup("hoursDelay", id)}
+        />
         <Group
           state={state}
           items={docData.operators}
