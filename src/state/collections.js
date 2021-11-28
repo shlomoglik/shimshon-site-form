@@ -1,4 +1,5 @@
 export const SITES = "sites"
 export const ROLES = "roles"
 export const EQUIPMENT = "equipment"
+export const MACHINES = "machines"
 export const USERS = "users"

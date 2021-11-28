@@ -15,7 +15,8 @@ export default function Group({
     hasChanges = false,
     removeItem = () => { },
     state = {},
-    items = [{ name: "", from: "", to: "", id: 1 }],
+    items = [{ name: "", from:
+     "", to: "", id: 1 }],
     headers = { name: { label: "שם", type: "list", options: "users" }, from: { label: "משעה", type: "hour" }, to: { label: "עד שעה", type: "hour" } }
 }) {
 

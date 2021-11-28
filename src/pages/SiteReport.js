@@ -1,12 +1,13 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { fbContext } from "../state/fbContext"
-import { SITES, ROLES, USERS, EQUIPMENT } from "../state/collections"
+import { SITES, ROLES, USERS, EQUIPMENT, MACHINES } from "../state/collections"
 import styles from './Page.module.css';
 import Dropdown from '../components/Dropdown';
 import DateInput from '../components/DateInput';
 import Group from '../components/Group';
 import Heading from '../components/Heading';
 import { uuid } from "../utils/uuid"
+import Files from '../components/Files';
 
 const timeTrackHeaders = {
   userName: { label: "שם", type: "list", options: USERS },
@@ -21,7 +22,8 @@ const hoursDelayHeaders = {
 const pitHeaders = {
   pit: { label: "מספר בור", type: "text" },
   deep: { label: "עומק", type: "number" },
-  diameter: { label: "קוטר", type: "options", options: [35, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230] }
+  diameter: { label: "קוטר", type: "options", options: [35, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230] },
+  machine: { label: "סוג מכונה", type: "list", options: MACHINES },
 }
 const equipmentHeaders = {
   title: { label: "כלי", type: "list", options: EQUIPMENT }
@@ -29,7 +31,7 @@ const equipmentHeaders = {
 
 const groupDefaultItems = {
   operators: { userName: "", role: "operator", from: "", to: "" },
-  pits: { pit: "1", deep: 0, diameter: "" },
+  pits: { pit: "1", deep: 0, diameter: "", machine: "" },
   hoursDelay: { from: "", to: "" },
   equipment: { title: "" },
 }
@@ -38,6 +40,7 @@ const initialData = {
   user: "",
   site: "",
   date: "",
+  files: [],
   operators: [{ ...groupDefaultItems.operators, id: uuid() }],
   equipment: [{ ...groupDefaultItems.equipment, id: uuid() }],
   hoursDelay: [{ ...groupDefaultItems.hoursDelay, id: uuid() }],
@@ -69,6 +72,9 @@ export default function SiteReport() {
 
   function updateSite(id) {
     updateField("site", id)
+  }
+  function updateFiles(files) {
+    console.log(files)
   }
   function updateDate(value) {
     updateField("date", value)
@@ -135,6 +141,7 @@ export default function SiteReport() {
         <Dropdown state={state} title="שם ממלא דוח" value={docData.user} onSelect={updateUser} options={USERS} />
         <DateInput title="תאריך עבודה" value={docData.date} onInput={updateDate} />
         <Dropdown state={state} title="אתר" value={docData.site} onSelect={updateSite} options={SITES} />
+        <Files value={docData.files} onUpload={updateFiles} />
         <Group
           state={state}
           items={docData.equipment}
