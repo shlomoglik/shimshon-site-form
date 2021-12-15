@@ -7,7 +7,7 @@ import DateInput from '../components/DateInput';
 import Group from '../components/Group';
 import Heading from '../components/Heading';
 import { uuid } from "../utils/uuid"
-import Files from '../components/Files';
+import FilesInput from '../components/FilesInput';
 
 const timeTrackHeaders = {
   userName: { label: "שם", type: "list", options: USERS },
@@ -40,19 +40,22 @@ const initialData = {
   user: "",
   site: "",
   date: "",
-  files: [],
   operators: [{ ...groupDefaultItems.operators, id: uuid() }],
   equipment: [{ ...groupDefaultItems.equipment, id: uuid() }],
   hoursDelay: [{ ...groupDefaultItems.hoursDelay, id: uuid() }],
   pits: [{ ...groupDefaultItems.pits, id: uuid() }],
 }
 
+const FILES_LIMIT = 1
+
 export default function SiteReport() {
 
   const state = useContext(fbContext)
 
+  const [locked, setLocked] = useState(false)
   const [valid, setValid] = useState(false)
   const [docData, setDocData] = useState(initialData)
+  const [files, setFiles] = useState([])
 
   const formRef = useRef(null)
   //fetch state from firebase
@@ -73,9 +76,16 @@ export default function SiteReport() {
   function updateSite(id) {
     updateField("site", id)
   }
-  function updateFiles(files) {
-    console.log(files)
+
+  function updateFiles(newFile) {
+    if (files.length === FILES_LIMIT) return
+    setFiles([...files, newFile])
   }
+  function handleRemoveFile(fileID) {
+    setFiles(files.filter(file => file.id !== fileID))
+  }
+
+
   function updateDate(value) {
     updateField("date", value)
   }
@@ -114,24 +124,49 @@ export default function SiteReport() {
   function resetForm() {
     setDocData({ ...initialData })
     formRef.current.reset();
+    setFiles([])
   }
 
   async function sendData() {
     try {
+      setLocked(true)
       const url = "https://hook.integromat.com/l9khxcxopdqwv227kiywqlqr0b4wt6ff"
-      const res = await fetch(url, {
+      const formData = new FormData()
+      formData.append("body", JSON.stringify(docData))
+      for (const ind in files) {
+        const file = files[ind]
+        const blob = await (await fetch(file.url)).blob();
+        formData.append(`files_${ind}`, blob, file.title)
+      }
+      const result = await fetch(url, {
         method: "POST",
-        headers: { 'Content-type': "application/json" },
-        body: JSON.stringify(docData)
+        body: formData
       })
-      console.log(res);
-      // const json = await res.json() 
-      // console.log(json)
+      console.log(result)
       resetForm();
-    } catch (error) {
-      alert(error)
+    } catch (err) {
+      alert(err)
+    } finally {
+      setLocked(false)
     }
   }
+
+  // async function sendData() {
+  //   try {
+  //     const url = "https://hook.integromat.com/l9khxcxopdqwv227kiywqlqr0b4wt6ff"
+  //     const res = await fetch(url, {
+  //       method: "POST",
+  //       headers: { 'Content-type': "application/json" },
+  //       body: JSON.stringify(docData)
+  //     })
+  //     console.log(res);
+  //     // const json = await res.json() 
+  //     // console.log(json)
+  //     resetForm();
+  //   } catch (error) {
+  //     alert(error)
+  //   }
+  // }
 
 
   return (
@@ -141,7 +176,7 @@ export default function SiteReport() {
         <Dropdown state={state} title="שם ממלא דוח" value={docData.user} onSelect={updateUser} options={USERS} />
         <DateInput title="תאריך עבודה" value={docData.date} onInput={updateDate} />
         <Dropdown state={state} title="אתר" value={docData.site} onSelect={updateSite} options={SITES} />
-        <Files value={docData.files} onUpload={updateFiles} />
+        <FilesInput label="יומן אתר" files={files} handleAddFiles={updateFiles} handleRemoveFile={handleRemoveFile} limit={FILES_LIMIT} />
         <Group
           state={state}
           items={docData.equipment}
@@ -181,7 +216,7 @@ export default function SiteReport() {
       <div style={{ padding: '2rem 0', marginTop: '2rem', display: 'grid', alignItems: 'center', justifyContent: 'center' }}>
         <button
           style={{ backgroundColor: valid ? "navy" : "gray", color: 'white' }}
-          disabled={!valid}
+          disabled={!valid || locked}
           onClick={sendData}
         >
           שלח דיווח
